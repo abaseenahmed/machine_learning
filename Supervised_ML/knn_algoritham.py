@@ -46,6 +46,17 @@ for k in [1, 3, 5, 7, 9, 11]:
     acc = accuracy_score(y_test, model.predict(X_test))
     print(f"K={k} -> Accuracy: {acc * 100:.2f}%")
 
+
+# Plot ONLY the raw data - no KNN, no model, nothing!
+plt.figure(figsize=(8, 6))
+plt.scatter(df['feature_1'], df['feature_2'], 
+            c=df['cluster'], cmap='viridis', edgecolors='k')
+plt.title('RAW Data - NO KNN Applied')
+plt.xlabel('Feature 1')
+plt.ylabel('Feature 2')
+plt.colorbar(label='Cluster')
+plt.show()
+
 # STEP 9: Visualize Decision Boundary
 x_min, x_max = X_train[:, 0].min() - 1, X_train[:, 0].max() + 1
 y_min, y_max = X_train[:, 1].min() - 1, X_train[:, 1].max() + 1
