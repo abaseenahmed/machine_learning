@@ -85,3 +85,12 @@ print(
     f"RMSE: ${mean_squared_error(y_test, predictions) ** 0.5:,.2f}"
 )
 print(f"R²:    {r2_score(y_test, predictions):.4f}")
+
+# 8. Show the features that most influenced the selected forest
+feature_names = best_model.named_steps["preprocessor"].get_feature_names_out()
+feature_importances = best_model.named_steps["model"].feature_importances_
+top_feature_indices = np.argsort(feature_importances)[-10:][::-1]
+
+print("\nTop 10 feature importances:")
+for index in top_feature_indices:
+    print(f"{feature_names[index]}: {feature_importances[index]:.4f}")
