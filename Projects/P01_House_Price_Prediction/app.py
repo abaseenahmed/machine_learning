@@ -29,15 +29,17 @@ st.set_page_config(
 st.markdown(
     """
     <style>
-    .stApp { background: #f5f7fb; }
-    .block-container { max-width: 1440px; padding-top: 2rem; }
+    .stApp { background: #f5f7fb, color:'black'; }
+    .block-container { max-width: 1440px; padding-top: 2rem; background:'blue'; color:'black'; }
     [data-testid="stMetric"] {
         background: white; border: 1px solid #e6eaf1;
         padding: 1rem 1.1rem; border-radius: 12px;
+        color:'black';
     }
     div[data-testid="stForm"] {
-        background: white; padding: 1.1rem; border-radius: 12px;
+        background: black; padding: 1.1rem; border-radius: 12px;
         border: 1px solid #e6eaf1;
+        color:'black';
     }
     </style>
     """,
@@ -314,7 +316,7 @@ with tab_performance:
             y=[0, maximum_price],
             mode="lines",
             name="Perfect estimate",
-            line={"color": "#e63946", "dash": "dash"},
+            line={"color": "#020202", "dash": "dash"},
         )
     )
     st.plotly_chart(actual_vs_predicted, width="stretch")
