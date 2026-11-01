@@ -1,4 +1,6 @@
 
+from pathlib import Path
+
 import pandas as pd
 import numpy as np
 
@@ -12,8 +14,10 @@ from sklearn.linear_model import LinearRegression, Ridge
 from sklearn.ensemble import RandomForestRegressor, GradientBoostingRegressor
 from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
 
+DATA_PATH = Path(__file__).resolve().parent / "data" / "cleaned_data.csv"
+
 # 1. Load cleaned data
-df = pd.read_csv("data/cleaned_data.csv")
+df = pd.read_csv(DATA_PATH)
 
 # 2. Separate features and target
 X = df.drop(columns=["price", "date"])

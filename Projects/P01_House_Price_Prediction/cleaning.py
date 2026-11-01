@@ -1,8 +1,11 @@
 
+from pathlib import Path
+
 import pandas as pd
 
-# 1. Load the original dataset
-df = pd.read_csv("data/data.csv")
+DATA_DIR = Path(__file__).resolve().parent / "data"
+
+df = pd.read_csv(DATA_DIR / "data.csv")
 
 print("Original dataset shape:", df.shape)
 
@@ -30,7 +33,7 @@ df = df.drop(columns=["country", "street"])
 df["date"] = pd.to_datetime(df["date"], errors="coerce")
 
 # 6. Save the cleaned dataset
-df.to_csv("data/cleaned_data.csv", index=False)
+df.to_csv(DATA_DIR / "cleaned_data.csv", index=False)
 
 # 7. Validate the result
 print("\nFinal cleaned dataset shape:", df.shape)

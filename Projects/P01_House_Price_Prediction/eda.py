@@ -1,10 +1,14 @@
 
+from pathlib import Path
+
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
 
+DATA_PATH = Path(__file__).resolve().parent / "data" / "cleaned_data.csv"
+
 # Load cleaned data
-df = pd.read_csv("data/cleaned_data.csv")
+df = pd.read_csv(DATA_PATH)
 
 sns.set_theme(style="whitegrid")
 
@@ -138,4 +142,3 @@ print(
     df.nlargest(10, "price")[columns_to_show]
     .to_string(index=False)
 )
-

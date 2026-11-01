@@ -1,4 +1,6 @@
 
+from pathlib import Path
+
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
@@ -12,8 +14,10 @@ from sklearn.impute import SimpleImputer
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
 
+DATA_PATH = Path(__file__).resolve().parent / "data" / "cleaned_data.csv"
+
 # 1. Load the cleaned data
-df = pd.read_csv("data/cleaned_data.csv")
+df = pd.read_csv(DATA_PATH)
 
 X = df.drop(columns=["price", "date"])
 y = df["price"]
