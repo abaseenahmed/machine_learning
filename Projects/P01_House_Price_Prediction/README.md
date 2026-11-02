@@ -24,9 +24,11 @@ is running; it is retrained when the cleaned dataset changes.
 - Upload a CSV for batch estimates and download the results.
 - Download a CSV template with the expected feature columns.
 - Explore sale-price distributions, living-area relationships, and city
-  summaries.
+  summaries, with filters for city and bedroom count.
 - Review holdout MAE, RMSE, R², actual-versus-predicted values, and feature
   importance.
+- View the dashboard in a responsive, polished layout with consistent charts
+  and metric cards.
 
 ## Batch CSV format
 

@@ -29,17 +29,79 @@ st.set_page_config(
 st.markdown(
     """
     <style>
-    .stApp { background: #f5f7fb, color:'black'; }
-    .block-container { max-width: 1440px; padding-top: 2rem; background:'blue'; color:'black'; }
-    [data-testid="stMetric"] {
-        background: white; border: 1px solid #e6eaf1;
-        padding: 1rem 1.1rem; border-radius: 12px;
-        color:'black';
+    :root {
+        --ink: #17233b;
+        --muted: #718096;
+        --line: #e7edf5;
+        --surface: #ffffff;
     }
+    .stApp { background: #f4f7fb; color: var(--ink); }
+    [data-testid="stHeader"] { background: rgba(244, 247, 251, 0.88); }
+    .block-container { max-width: 1440px; padding: 2.2rem 2.5rem 4rem; }
+    html, body, [class*="css"] { font-family: 'Aptos', 'Segoe UI', sans-serif; }
+    h1, h2, h3 { color: var(--ink); font-family: 'Aptos Display', 'Segoe UI', sans-serif; letter-spacing: -0.035em; }
+    h2 { font-size: 1.55rem !important; }
+    h3 { font-size: 1.15rem !important; }
+    .hero {
+        position: relative; overflow: hidden; margin: 0 0 1.8rem; padding: 2rem 2.2rem;
+        border: 1px solid rgba(255,255,255,.12); border-radius: 22px;
+        color: #fff; background: linear-gradient(118deg, #172b50 0%, #243d70 58%, #4265c7 100%);
+        box-shadow: 0 16px 38px rgba(28, 52, 94, .16);
+    }
+    .hero:after {
+        position: absolute; top: -105px; right: -40px; width: 340px; height: 340px;
+        border: 1px solid rgba(255,255,255,.12); border-radius: 50%;
+        box-shadow: 0 0 0 34px rgba(255,255,255,.035), 0 0 0 70px rgba(255,255,255,.025);
+        content: '';
+    }
+    .hero-eyebrow { color: #b8cbff; font-size: .73rem; font-weight: 700; letter-spacing: .16em; text-transform: uppercase; }
+    .hero h1 { margin: .55rem 0 .45rem; color: #fff; font-size: clamp(2rem, 4vw, 3rem); }
+    .hero-copy { max-width: 640px; margin: 0; color: #d3def3; font-size: 1rem; line-height: 1.65; }
+    .hero-note {
+        position: absolute; z-index: 1; top: 2rem; right: 2rem; padding: .55rem .85rem;
+        border: 1px solid rgba(255,255,255,.2); border-radius: 999px;
+        color: #e8efff; background: rgba(255,255,255,.09); font-size: .78rem; font-weight: 600;
+    }
+    .stCaption { color: var(--muted); }
+    [data-testid="stTabs"] [role="tablist"] {
+        gap: .45rem; padding: .38rem; border: 1px solid var(--line); border-radius: 14px;
+        background: #eaf0f8;
+    }
+    [data-testid="stTabs"] button[role="tab"] {
+        min-height: 2.7rem; border-radius: 10px; color: #62718a; font-weight: 600;
+    }
+    [data-testid="stTabs"] button[role="tab"][aria-selected="true"] {
+        color: var(--ink); background: #fff; box-shadow: 0 2px 8px rgba(30, 50, 80, .08);
+    }
+    [data-testid="stMetric"] {
+        min-height: 112px; padding: 1.15rem 1.25rem; border: 1px solid var(--line);
+        border-radius: 16px; background: var(--surface);
+        box-shadow: 0 4px 14px rgba(31, 51, 82, .035);
+    }
+    [data-testid="stMetricLabel"] { color: var(--muted); font-size: .82rem; font-weight: 600; }
+    [data-testid="stMetricValue"] { color: var(--ink); font-family: 'Aptos Display', 'Segoe UI', sans-serif; }
     div[data-testid="stForm"] {
-        background: black; padding: 1.1rem; border-radius: 12px;
-        border: 1px solid #e6eaf1;
-        color:'black';
+        padding: 1.35rem; border: 1px solid var(--line); border-radius: 18px;
+        background: #fff; box-shadow: 0 8px 24px rgba(31, 51, 82, .045);
+    }
+    [data-testid="stVerticalBlockBorderWrapper"] { border-color: var(--line); border-radius: 16px; }
+    .stButton > button, .stDownloadButton > button, [data-testid="stFormSubmitButton"] > button {
+        min-height: 2.75rem; border-radius: 10px; font-weight: 600;
+        transition: transform .16s ease, box-shadow .16s ease;
+    }
+    .stButton > button:hover, .stDownloadButton > button:hover,
+    [data-testid="stFormSubmitButton"] > button:hover {
+        transform: translateY(-1px); box-shadow: 0 6px 16px rgba(45, 80, 170, .13);
+    }
+    [data-testid="stFileUploader"] section {
+        border: 1px dashed #c9d4e5; border-radius: 14px; background: #f9fbfe;
+    }
+    [data-testid="stDataFrame"] { border: 1px solid var(--line); border-radius: 12px; }
+    div[data-testid="stAlert"] { border-radius: 12px; }
+    @media (max-width: 700px) {
+        .block-container { padding: 1.2rem 1rem 3rem; }
+        .hero { padding: 1.5rem; }
+        .hero-note { position: static; display: inline-block; margin-top: 1.2rem; }
     }
     </style>
     """,
@@ -56,11 +118,33 @@ def get_model_bundle(
     return train_and_evaluate(data)
 
 
-st.title("🏠 HomeValue")
+def style_chart(chart: go.Figure) -> go.Figure:
+    chart.update_layout(
+        template="plotly_white",
+        paper_bgcolor="rgba(0,0,0,0)",
+        plot_bgcolor="rgba(0,0,0,0)",
+        font={"family": "Aptos, Segoe UI, sans-serif", "color": "#52627a", "size": 12},
+        title={"font": {"family": "Aptos Display, Segoe UI, sans-serif", "size": 16, "color": "#17233b"}},
+        margin={"l": 12, "r": 12, "t": 58, "b": 12},
+        coloraxis_colorbar={"outlinewidth": 0},
+        hoverlabel={"bgcolor": "#17233b", "font": {"color": "#ffffff"}},
+    )
+    chart.update_xaxes(showgrid=True, gridcolor="#edf1f7", zeroline=False)
+    chart.update_yaxes(showgrid=True, gridcolor="#edf1f7", zeroline=False)
+    return chart
+
+
 st.markdown(
-    "### House price prediction studio\n"
-    "Explore the dataset, estimate a property's sale price, or score a batch "
-    "of properties."
+    """
+    <section class="hero">
+      <div class="hero-eyebrow">Real estate intelligence</div>
+      <h1>HomeValue Studio</h1>
+      <p class="hero-copy">A clearer view of home values. Explore historical
+      sales, build an informed estimate, and understand what drives the model.</p>
+      <div class="hero-note">● &nbsp; Market insights &amp; estimates</div>
+    </section>
+    """,
+    unsafe_allow_html=True,
 )
 
 if not DATA_PATH.exists():
@@ -226,17 +310,42 @@ with tab_estimate:
                 st.error(f"Unable to process this CSV: {error}")
 
 with tab_market:
-    st.subheader("Historical sales at a glance")
+    st.subheader("Explore the market")
+    st.caption(
+        "Narrow the historical view by location or bedroom count. Leave a filter "
+        "empty to include every value."
+    )
+    city_options = sorted(dataset["city"].dropna().astype(str).unique())
+    filter_city, filter_bedrooms = st.columns(2)
+    with filter_city:
+        selected_cities = st.multiselect(
+            "Cities", city_options, placeholder="All cities"
+        )
+    available_market = dataset
+    if selected_cities:
+        available_market = available_market.loc[
+            available_market["city"].astype(str).isin(selected_cities)
+        ]
+    bedroom_options = sorted(available_market["bedrooms"].dropna().astype(int).unique())
+    with filter_bedrooms:
+        selected_bedrooms = st.multiselect(
+            "Bedrooms", bedroom_options, placeholder="All bedroom counts"
+        )
+    market_data = available_market
+    if selected_bedrooms:
+        market_data = market_data.loc[market_data["bedrooms"].isin(selected_bedrooms)]
+
+    st.markdown("#### Historical sales at a glance")
     metric_columns = st.columns(4)
-    metric_columns[0].metric("Sales in dataset", f"{len(dataset):,}")
-    metric_columns[1].metric("Median sale price", f"${dataset['price'].median():,.0f}")
-    metric_columns[2].metric("Median living area", f"{dataset['sqft_living'].median():,.0f} sq ft")
-    metric_columns[3].metric("Cities represented", f"{dataset['city'].nunique():,}")
+    metric_columns[0].metric("Sales in view", f"{len(market_data):,}")
+    metric_columns[1].metric("Median sale price", f"${market_data['price'].median():,.0f}")
+    metric_columns[2].metric("Median living area", f"{market_data['sqft_living'].median():,.0f} sq ft")
+    metric_columns[3].metric("Cities represented", f"{market_data['city'].nunique():,}")
 
     chart_left, chart_right = st.columns(2)
     with chart_left:
         price_chart = px.histogram(
-            dataset,
+            market_data,
             x="price",
             nbins=45,
             labels={"price": "Sale price (USD)", "count": "Sales"},
@@ -244,10 +353,10 @@ with tab_market:
             color_discrete_sequence=["#4361ee"],
         )
         price_chart.update_layout(bargap=0.08)
-        st.plotly_chart(price_chart, width="stretch")
+        st.plotly_chart(style_chart(price_chart), width="stretch")
     with chart_right:
         scatter = px.scatter(
-            dataset,
+            market_data,
             x="sqft_living",
             y="price",
             color="bedrooms",
@@ -261,10 +370,10 @@ with tab_market:
             opacity=0.65,
             color_continuous_scale="Viridis",
         )
-        st.plotly_chart(scatter, width="stretch")
+        st.plotly_chart(style_chart(scatter), width="stretch")
 
     city_summary = (
-        dataset.groupby("city", as_index=False)
+        market_data.groupby("city", as_index=False)
         .agg(median_price=("price", "median"), sales=("price", "size"))
         .query("sales >= 5")
         .nlargest(12, "median_price")
@@ -280,7 +389,7 @@ with tab_market:
         title="12 highest-median-price cities (at least 5 sales)",
         color_continuous_scale="Blues",
     )
-    st.plotly_chart(city_chart, width="stretch")
+    st.plotly_chart(style_chart(city_chart), width="stretch")
     st.caption(
         "Market charts summarize the supplied historical data; they are not "
         "current market statistics."
@@ -319,7 +428,7 @@ with tab_performance:
             line={"color": "#020202", "dash": "dash"},
         )
     )
-    st.plotly_chart(actual_vs_predicted, width="stretch")
+    st.plotly_chart(style_chart(actual_vs_predicted), width="stretch")
 
     importance_chart = px.bar(
         feature_importance.head(12).sort_values("importance"),
@@ -331,7 +440,7 @@ with tab_performance:
         color="importance",
         color_continuous_scale="Blues",
     )
-    st.plotly_chart(importance_chart, width="stretch")
+    st.plotly_chart(style_chart(importance_chart), width="stretch")
     st.caption(
         "Feature importance describes how the fitted forest used inputs; it "
         "does not establish causation. The data contains historical sales only."
