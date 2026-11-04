@@ -40,6 +40,8 @@ The CSV must include these columns:
 
 Numeric feature values must be finite and non-negative. Additional columns are
 ignored, and uploads are limited to 10,000 rows.
+The app warns when uploaded city or ZIP-code values were not in the training
+data, or when a city/ZIP-code combination was not observed.
 
 ## Important limitations
 

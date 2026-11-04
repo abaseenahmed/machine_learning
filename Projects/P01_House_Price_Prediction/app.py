@@ -298,14 +298,49 @@ with tab_estimate:
                     mime="text/csv",
                     width="stretch",
                 )
+                known_cities = set(dataset["city"].astype(str))
+                known_statezips = set(dataset["statezip"].astype(str))
                 unknown_cities = sorted(
-                    set(batch["city"].astype(str)) - set(dataset["city"].astype(str))
+                    set(batch["city"].astype(str)) - known_cities
                 )
-                if unknown_cities:
+                unknown_statezips = sorted(
+                    set(batch["statezip"].astype(str)) - known_statezips
+                )
+                if unknown_cities or unknown_statezips:
+                    unseen_values = []
+                    if unknown_cities:
+                        city_examples = ", ".join(unknown_cities[:5])
+                        remaining_cities = len(unknown_cities) - 5
+                        if remaining_cities > 0:
+                            city_examples += f" (+{remaining_cities} more)"
+                        unseen_values.append("cities: " + city_examples)
+                    if unknown_statezips:
+                        zip_examples = ", ".join(unknown_statezips[:5])
+                        remaining_zips = len(unknown_statezips) - 5
+                        if remaining_zips > 0:
+                            zip_examples += f" (+{remaining_zips} more)"
+                        unseen_values.append("ZIP codes: " + zip_examples)
                     st.warning(
-                        "Some uploaded cities were not in the training data; "
-                        "their location may have limited influence on estimates."
+                        "These location values were not in the training data ("
+                        + "; ".join(unseen_values)
+                        + "); their location may have limited influence on estimates."
                     )
+                else:
+                    known_location_pairs = set(
+                        dataset[["city", "statezip"]]
+                        .astype(str)
+                        .itertuples(index=False, name=None)
+                    )
+                    batch_location_pairs = set(
+                        batch[["city", "statezip"]]
+                        .itertuples(index=False, name=None)
+                    )
+                    if not batch_location_pairs.issubset(known_location_pairs):
+                        st.warning(
+                            "Some city and ZIP-code combinations were not present "
+                            "in the training data. Verify these locations; estimates "
+                            "may be less reliable."
+                        )
             except (OSError, ValueError, pd.errors.ParserError) as error:
                 st.error(f"Unable to process this CSV: {error}")
 
