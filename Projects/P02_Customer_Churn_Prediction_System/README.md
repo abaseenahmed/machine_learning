@@ -1,0 +1,57 @@
+# Customer Churn Prediction System
+
+An end-to-end supervised learning project for predicting telecom customer
+churn. The workflow compares several classifiers with the same stratified
+holdout split and preprocessing, tunes the strongest cross-validation
+candidates, selects a probability threshold with a minimum churn-recall
+requirement, and packages the selected preprocessing and model pipeline for
+use in a Streamlit dashboard.
+
+## Project layout
+
+- `data/cleaned_data.csv` — cleaned customer dataset.
+- `train.py` — preprocessing, model comparison, cross-validation, tuning, and
+  model/metadata export.
+- `evaluate.py` — held-out metrics, classification report, ROC curve, and
+  permutation importance.
+- `app.py` — interactive customer assessment and model-performance dashboard.
+- `models/` — generated joblib pipeline and feature metadata.
+- `reports/` — generated comparison tables, metrics, plots, and summaries.
+
+## Run locally
+
+From this directory:
+
+```powershell
+python -m pip install -r requirements.txt
+python train.py
+python evaluate.py
+python -m streamlit run app.py
+```
+
+`train.py` uses a stratified 80/20 split with `random_state=42`. Numerical
+features are median-imputed and standardized; categorical features are
+most-frequent-imputed and one-hot encoded. `customerID` is excluded. Models
+include a prior baseline, logistic regression, decision tree, random forest,
+SVM, and gradient boosting. Class weights are used where supported.
+
+Every model is compared with five-fold stratified cross-validation and on the
+same held-out test set using accuracy, precision, churn recall, F1, ROC-AUC,
+and false-positive/false-negative counts. The two strongest non-baseline
+cross-validation F1 candidates are tuned with `GridSearchCV`. The final
+threshold is selected from out-of-fold training probabilities to maximize F1
+subject to at least 75% churn recall where feasible. The holdout remains
+separate for final evaluation.
+
+Training writes `models/churn_pipeline.joblib`,
+`models/feature_metadata.json`, `reports/model_comparison.csv`, and
+`reports/training_summary.json`. Evaluation writes
+`reports/evaluation.json`, `reports/roc_curve.png`, and
+`reports/feature_importance.csv`. The dashboard includes an adjustable alert
+threshold, prediction probability, confusion matrix, ROC curve, classification
+report, global permutation importance, and approximate local one-feature
+sensitivity comparisons.
+
+The local feature comparisons are model sensitivity indicators, not causal
+explanations. Metrics describe one held-out split from this dataset; they do
+not guarantee performance on future customers.
