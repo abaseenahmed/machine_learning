@@ -29,6 +29,9 @@ python evaluate.py
 python -m streamlit run app.py
 ```
 
+Run the evaluation-data validation tests with
+`python -m unittest discover -s tests -v`.
+
 `train.py` uses a stratified 80/20 split with `random_state=42`. Numerical
 features are median-imputed and standardized; categorical features are
 most-frequent-imputed and one-hot encoded. `customerID` is excluded. Models
@@ -55,3 +58,8 @@ sensitivity comparisons.
 The local feature comparisons are model sensitivity indicators, not causal
 explanations. Metrics describe one held-out split from this dataset; they do
 not guarantee performance on future customers.
+
+Evaluation checks that the input predictors match the trained model's feature
+schema before scoring. The `customerID` identifier is excluded, and predictors
+are reordered to the model's training order; missing or additional predictors
+produce a clear error instead of being silently accepted.

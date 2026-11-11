@@ -9,7 +9,6 @@ import matplotlib
 
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
-import numpy as np
 import pandas as pd
 from sklearn.inspection import permutation_importance
 from sklearn.metrics import (
@@ -29,6 +28,50 @@ PROJECT_DIR = Path(__file__).resolve().parent
 DEFAULT_DATA_PATH = PROJECT_DIR / "data" / "cleaned_data.csv"
 MODEL_PATH = PROJECT_DIR / "models" / "churn_pipeline.joblib"
 REPORT_DIR = PROJECT_DIR / "reports"
+RANDOM_STATE = 42
+TEST_SIZE = 0.20
+
+
+def align_features(
+    features: pd.DataFrame, expected_columns: list[str]
+) -> pd.DataFrame:
+    if not expected_columns or len(expected_columns) != len(set(expected_columns)):
+        raise ValueError(
+            "The model must define a non-empty, unique feature_columns list."
+        )
+
+    missing = sorted(set(expected_columns) - set(features.columns))
+    unexpected = sorted(set(features.columns) - set(expected_columns))
+    if missing or unexpected:
+        details = []
+        if missing:
+            details.append(f"missing columns: {missing}")
+        if unexpected:
+            details.append(f"unexpected columns: {unexpected}")
+        raise ValueError(
+            "Evaluation data does not match the model schema ("
+            + "; ".join(details)
+            + ")."
+        )
+
+    return features.loc[:, expected_columns]
+
+
+def load_evaluation_data(
+    data_path: Path, expected_columns: list[str]
+) -> tuple[pd.DataFrame, pd.Series]:
+    data = pd.read_csv(data_path)
+    if "Churn" not in data:
+        raise ValueError(f"{data_path} must contain a 'Churn' target column.")
+
+    labels = data["Churn"].map({"Yes": 1, "No": 0})
+    if labels.isna().any():
+        invalid = sorted(data.loc[labels.isna(), "Churn"].astype(str).unique())
+        raise ValueError(f"Unexpected Churn values: {invalid}")
+
+    features = data.drop(columns=["Churn", "customerID"], errors="ignore")
+    features = align_features(features, expected_columns)
+    return features, labels.astype(int)
 
 
 def evaluate(data_path: Path, model_path: Path) -> None:
@@ -38,20 +81,23 @@ def evaluate(data_path: Path, model_path: Path) -> None:
         raise FileNotFoundError(
             f"Trained model not found at {model_path}. Run train.py first."
         )
-    data = pd.read_csv(data_path)
-    labels = data["Churn"].map({"Yes": 1, "No": 0})
-    if labels.isna().any():
-        raise ValueError("Churn must contain only 'Yes' and 'No'.")
-    features = data.drop(columns=["Churn", "customerID"], errors="ignore")
-    X_train, X_test, y_train, y_test = train_test_split(
-        features,
-        labels.astype(int),
-        test_size=0.20,
-        random_state=42,
-        stratify=labels.astype(int),
-    )
 
     bundle: dict[str, Any] = joblib.load(model_path)
+    feature_columns = bundle.get("feature_columns")
+    if not isinstance(feature_columns, list) or not all(
+        isinstance(column, str) for column in feature_columns
+    ):
+        raise ValueError("Trained model bundle must contain a feature_columns list.")
+
+    features, labels = load_evaluation_data(data_path, feature_columns)
+    _, X_test, _, y_test = train_test_split(
+        features,
+        labels,
+        test_size=TEST_SIZE,
+        random_state=RANDOM_STATE,
+        stratify=labels,
+    )
+
     pipeline = bundle["pipeline"]
     threshold = float(bundle["threshold"])
     probabilities = pipeline.predict_proba(X_test)[:, 1]
@@ -137,7 +183,7 @@ def evaluate(data_path: Path, model_path: Path) -> None:
         y_test,
         scoring="roc_auc",
         n_repeats=5,
-        random_state=42,
+        random_state=RANDOM_STATE,
         n_jobs=-1,
     )
     importance_table = pd.DataFrame(
