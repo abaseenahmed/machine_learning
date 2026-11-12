@@ -15,6 +15,9 @@ use in a Streamlit dashboard.
 - `evaluate.py` — held-out metrics, classification report, ROC curve, and
   permutation importance.
 - `app.py` — interactive customer assessment and model-performance dashboard.
+- `web/` — React dashboard interface that uses the generated evaluation,
+  feature metadata, and ROC-curve artifacts. Its customer score is an
+  illustrative UI preview and is not connected to the trained model.
 - `models/` — generated joblib pipeline and feature metadata.
 - `reports/` — generated comparison tables, metrics, plots, and summaries.
 
@@ -28,6 +31,19 @@ python train.py
 python evaluate.py
 python -m streamlit run app.py
 ```
+
+To run the React interface, open a second terminal in this directory:
+
+```powershell
+cd web
+npm install
+npm run dev
+```
+
+The React customer assessment is currently a UI prototype: its assessment
+score is illustrative and does not call the trained Python pipeline. The
+model-performance view reads the latest local evaluation artifacts. The
+Streamlit app remains the working model-connected dashboard.
 
 Run the evaluation-data validation tests with
 `python -m unittest discover -s tests -v`.
