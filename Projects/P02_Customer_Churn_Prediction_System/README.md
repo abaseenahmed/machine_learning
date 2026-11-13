@@ -32,13 +32,16 @@ python evaluate.py
 python -m streamlit run app.py
 ```
 
-To run the React interface, open a second terminal in this directory:
+`app.py` starts the separate Streamlit dashboard; it does not serve the React
+interface. To run React from this project directory, use:
 
 ```powershell
-cd web
-npm install
-npm run dev
+npm --prefix web install
+npm --prefix web run dev
 ```
+
+Open the local URL printed by Vite (by default, `http://localhost:5173`).
+Alternatively, change into `web` and run `npm install` followed by `npm run dev`.
 
 The React customer assessment is currently a UI prototype: its assessment
 score is illustrative and does not call the trained Python pipeline. The
