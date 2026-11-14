@@ -14,7 +14,10 @@ use in a Streamlit dashboard.
   model/metadata export.
 - `evaluate.py` — held-out metrics, classification report, ROC curve, and
   permutation importance.
-- `app.py` — interactive customer assessment and model-performance dashboard.
+- `app.py` — interactive customer assessment, CSV batch scoring, and
+  model-performance dashboard.
+- `scoring.py` — validates and aligns uploaded customer data with the model's
+  feature schema.
 - `web/` — React dashboard interface that uses the generated evaluation,
   feature metadata, and ROC-curve artifacts. Its customer score is an
   illustrative UI preview and is not connected to the trained model.
@@ -47,6 +50,11 @@ The React customer assessment is currently a UI prototype: its assessment
 score is illustrative and does not call the trained Python pipeline. The
 model-performance view reads the latest local evaluation artifacts. The
 Streamlit app remains the working model-connected dashboard.
+
+The Streamlit dashboard's **Batch scoring** tab accepts a CSV containing
+exactly the trained model's predictor columns. An optional `customerID` column
+is retained in the downloadable prediction results but is not used for scoring.
+The selected churn alert threshold is applied to every customer in the upload.
 
 Run the evaluation-data validation tests with
 `python -m unittest discover -s tests -v`.

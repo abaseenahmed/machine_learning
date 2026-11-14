@@ -8,6 +8,8 @@ import joblib
 import pandas as pd
 import streamlit as st
 
+from scoring import align_customer_features
+
 
 PROJECT_DIR = Path(__file__).resolve().parent
 MODEL_PATH = PROJECT_DIR / "models" / "churn_pipeline.joblib"
@@ -91,7 +93,9 @@ with st.sidebar:
         f"(selected model: {bundle['model_name']})"
     )
 
-prediction_tab, model_tab = st.tabs(["Customer assessment", "Model performance"])
+prediction_tab, batch_tab, model_tab = st.tabs(
+    ["Customer assessment", "Batch scoring", "Model performance"]
+)
 with prediction_tab:
     st.subheader("Customer profile")
     st.caption(
@@ -194,6 +198,51 @@ with prediction_tab:
             )
         else:
             st.info("All entered values match the training-set reference profile.")
+
+with batch_tab:
+    st.subheader("Score a customer list")
+    st.caption(
+        "Upload a CSV with the model's predictor columns. A customerID column is optional "
+        "and will be included in the results; target labels and other extra columns "
+        "are not accepted."
+    )
+    uploaded_file = st.file_uploader(
+        "Customer data CSV", type=["csv"], key="batch_customer_csv"
+    )
+    if uploaded_file is not None:
+        try:
+            uploaded_customers = pd.read_csv(uploaded_file)
+            batch_features, customer_ids = align_customer_features(
+                uploaded_customers, bundle["feature_columns"]
+            )
+        except (pd.errors.EmptyDataError, UnicodeDecodeError, ValueError) as error:
+            st.error(f"Unable to score this CSV: {error}")
+        else:
+            probabilities = pipeline.predict_proba(batch_features)[:, 1]
+            results = pd.DataFrame(
+                {
+                    "Churn probability": probabilities,
+                    "Predicted churn": [
+                        "Yes" if probability >= selected_threshold else "No"
+                        for probability in probabilities
+                    ],
+                }
+            )
+            if customer_ids is not None:
+                results.insert(0, "customerID", customer_ids.to_numpy())
+
+            flagged = int((probabilities >= selected_threshold).sum())
+            st.metric(
+                "Customers flagged for retention",
+                f"{flagged:,} / {len(results):,}",
+            )
+            st.dataframe(results, width="stretch", hide_index=True)
+            st.download_button(
+                "Download scored customers",
+                data=results.to_csv(index=False).encode("utf-8"),
+                file_name="customer_churn_predictions.csv",
+                mime="text/csv",
+            )
 
 with model_tab:
     st.subheader("Held-out evaluation")
