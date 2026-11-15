@@ -1,0 +1,28 @@
+{
+  "dataset": "Wisconsin Diagnostic Breast Cancer",
+  "dataset_source": "scikit-learn load_breast_cancer (UCI Machine Learning Repository)",
+  "samples": 569,
+  "features": 30,
+  "classes": {
+    "0": "malignant",
+    "1": "benign"
+  },
+  "split": {
+    "test_size": 0.2,
+    "random_state": 42,
+    "stratified": true,
+    "cross_validation": "5-fold stratified, shuffled; training set only"
+  },
+  "selection_metric": "mean cross-validation ROC-AUC",
+  "selected_model": "Logistic Regression",
+  "selected_model_cv_roc_auc_mean": 0.9958720330237357,
+  "selected_model_test_metrics": {
+    "accuracy": 0.9824561403508771,
+    "malignant_precision": 0.9761904761904762,
+    "malignant_recall": 0.9761904761904762,
+    "malignant_f1": 0.9761904761904762,
+    "specificity": 0.9861111111111112,
+    "roc_auc": 0.9953703703703705
+  },
+  "note": "The holdout metrics are for this split only and do not establish clinical suitability."
+}
