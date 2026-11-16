@@ -37,3 +37,17 @@ is educational and the results do not establish clinical suitability.
 The evaluated candidates are a most-frequent baseline, logistic regression,
 K-nearest neighbors, support vector machine, decision tree, random forest,
 gradient boosting, and Gaussian naive Bayes.
+
+## Simple training example
+
+For a shorter example using the local `Datasets/classification.csv` file, run:
+
+```powershell
+python -m pip install scikit-learn pandas joblib
+python train_simple.py
+```
+
+The script splits the data into stratified training and test sets, preprocesses
+numeric and categorical features, trains logistic regression, reports test
+accuracy, and saves the fitted pipeline to
+`models/simple_classifier.joblib`.
