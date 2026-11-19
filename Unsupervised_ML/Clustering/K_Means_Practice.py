@@ -54,8 +54,6 @@ X = df[['Annual_Income', 'Spending_Score']]
 # Step 05: Feature Scaling (Very Important)
 scaler = StandardScaler()
 X_scaled = scaler.fit_transform(X)
-scaler = StandardScaler()
-X_scaled = scaler.fit_transform(X)
 
 # Step 06: Apply the K - Means Clustering algorithm
 kmeans = KMeans(
